@@ -43,6 +43,7 @@ export default defineConfig({
     }),
   ],
   resolve: {
+    tsconfigPaths: true,
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
