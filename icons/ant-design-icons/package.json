@@ -1,0 +1,32 @@
+{
+  "name": "ant-design-icons",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "clean": "ut clean --workspaces",
+    "rn:generate": "ut generate --workspace @ant-design/icons-react-native",
+    "icons:generate": "ut generate --workspace @ant-design/icons-svg",
+    "icons:build": "ut build --workspace @ant-design/icons-svg",
+    "icons:test": "ut test --workspace @ant-design/icons-svg",
+    "react:ci": "ut ci --workspace @ant-design/icons",
+    "angular:ci": "ut ci --workspace @ant-design/icons-angular-workspace",
+    "vue:ci": "ut ci --workspace @ant-design/icons-vue",
+    "react-native:ci": "ut ci --workspace @ant-design/icons-react-native",
+    "lint": "ut lint --workspaces"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "typescript-eslint": "^8.18.2",
+    "eslint-plugin-jest": "^28.10.0",
+    "eslint": "^9.17.0",
+    "@types/minimatch": "^3",
+    "typescript": "^5"
+  },
+  "license": "MIT",
+  "repository": "git@github.com:ant-design/ant-design-icons.git",
+  "overrides": {
+    "cheerio": "1.0.0-rc.12"
+  }
+}

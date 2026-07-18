@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { Star, Download } from "lucide-react";
 import type { IconRecord } from "@/types/icon";
 import { loadSvgSource } from "@/lib/svg-loader";
-import { lightOptimize } from "@/lib/svg-transform";
+import { lightOptimize } from "@/lib/jsx-utils";
 import { useIconStore } from "@/store/icon-store";
 import { useCopyIcon } from "@/hooks/use-copy-icon";
 import { Button } from "@/components/ui/button";
 import { CopyFormatList } from "./copy-format-list";
+import { ComponentGeneratorDialog } from "./component-generator-dialog";
+import { pascalCase } from "@/lib/string-utils";
 
 function formatBytes(n: number): string {
   if (n < 1024) return `${n} B`;
@@ -15,6 +17,7 @@ function formatBytes(n: number): string {
 
 export function DetailsPanel({ icon }: { icon: IconRecord }) {
   const [source, setSource] = useState<string | null>(null);
+  const [generatorOpen, setGeneratorOpen] = useState(false);
   const favorites = useIconStore((s) => s.favorites);
   const toggleFavorite = useIconStore((s) => s.toggleFavorite);
   const { downloadIcon } = useCopyIcon();
@@ -22,11 +25,14 @@ export function DetailsPanel({ icon }: { icon: IconRecord }) {
 
   useEffect(() => {
     setSource(null);
-    loadSvgSource(icon.path).then(setSource).catch(() => setSource(null));
+    loadSvgSource(icon.path)
+      .then(setSource)
+      .catch(() => setSource(null));
   }, [icon.path]);
 
   const optimizedSize = source ? new Blob([lightOptimize(source)]).size : null;
 
+  console.log(icon);
   return (
     <div className="flex h-full flex-col overflow-y-auto">
       <div className="checkerboard-bg m-3 flex h-40 shrink-0 items-center justify-center rounded-lg border border-border">
@@ -62,18 +68,21 @@ export function DetailsPanel({ icon }: { icon: IconRecord }) {
         <Metadatum label="Filename" value={icon.filename} mono />
         <Metadatum label="ViewBox" value={icon.viewBox} mono />
         <Metadatum label="Original size" value={formatBytes(icon.sizeBytes)} />
-        <Metadatum
-          label="Optimized size"
-          value={optimizedSize !== null ? formatBytes(optimizedSize) : "…"}
-        />
+        <Metadatum label="Optimized size" value={optimizedSize !== null ? formatBytes(optimizedSize) : "…"} />
       </div>
 
       <div className="mt-4 flex-1 px-4 pb-4">
-        <p className="mb-2 text-xs font-semibold tracking-wide text-ink-faint uppercase">
-          Copy as
-        </p>
-        <CopyFormatList icon={icon} />
+        <p className="mb-2 text-xs font-semibold tracking-wide text-ink-faint uppercase">Copy as</p>
+        <CopyFormatList icon={icon} onOpenGenerator={() => setGeneratorOpen(true)} />
       </div>
+
+      {generatorOpen && source && (
+        <ComponentGeneratorDialog
+          svg={source}
+          defaultComponentName={pascalCase(icon.name)}
+          onClose={() => setGeneratorOpen(false)}
+        />
+      )}
     </div>
   );
 }

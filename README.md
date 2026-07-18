@@ -69,7 +69,7 @@ src/
   lib/
     manifest.ts               Manifest fetch + Fuse.js index
     svg-loader.ts              On-demand SVG fetch + in-memory cache
-    svg-transform.ts           SVG -> JSX/TSX/component/path/JSON/optimized
+    jsx-utils.ts           SVG -> JSX/TSX/component/path/JSON/optimized
   hooks/
     use-copy-icon.ts           Copy-to-clipboard + download logic
     use-keyboard-shortcuts.ts  Arrow nav, Enter, Ctrl/Cmd+C, Esc
@@ -130,7 +130,7 @@ copy experience — the part used on every single interaction — could get
 real engineering attention instead of being spread thin:
 
 - **Sprite sheet generation**, **Vue component export**, and **React
-  Native SVG export** are natural additions to `src/lib/svg-transform.ts`
+  Native SVG export** are natural additions to `src/lib/jsx-utils.ts`
   (same pattern as the existing JSX/TSX/component generators) and
   `src/features/preview/copy-format-list.tsx`, but aren't wired in yet.
 - **Drag-and-drop / paste-from-clipboard SVG inspection** would slot into
@@ -138,7 +138,7 @@ real engineering attention instead of being spread thin:
   `PlaygroundPanel` components against an ad-hoc `IconRecord`.
 - The bundled **SVGO** dependency is installed but only used for a fast,
   dependency-light client-side "optimize" pass (`lightOptimize`); wiring
-  full SVGO plugin config in is a drop-in swap in `svg-transform.ts`.
+  full SVGO plugin config in is a drop-in swap in `jsx-utils.ts`.
 
 ## Tech stack
 
@@ -147,6 +147,7 @@ primitives (shadcn-style components) · TanStack Virtual · Fuse.js ·
 Zustand · React Router · Lucide (UI chrome only — never used for the
 icon collection itself)
 =======
+
 > A modern, high-performance SVG icon explorer built for developers.
 
 Browse, search, preview, customize, and copy **60,000+ SVG icons** from multiple popular icon libraries. Copy icons as **SVG**, **JSX**, **TSX**, or **React Components** with a single click.
@@ -155,35 +156,35 @@ Browse, search, preview, customize, and copy **60,000+ SVG icons** from multiple
 
 ## ✨ Features
 
-* 🔍 Instant fuzzy search powered by Fuse.js
-* ⚡ Virtualized rendering for smooth performance with large icon collections
-* 🎨 Live icon playground
+- 🔍 Instant fuzzy search powered by Fuse.js
+- ⚡ Virtualized rendering for smooth performance with large icon collections
+- 🎨 Live icon playground
+  - Resize
+  - Stroke width
+  - Fill color
+  - Stroke color
+  - Rotation
+  - Scale
+  - Opacity
+  - Flip Horizontal / Vertical
 
-  * Resize
-  * Stroke width
-  * Fill color
-  * Stroke color
-  * Rotation
-  * Scale
-  * Opacity
-  * Flip Horizontal / Vertical
-* 📋 Copy in multiple formats
+- 📋 Copy in multiple formats
+  - SVG
+  - Optimized SVG
+  - JSX
+  - TSX
+  - React Component
+  - Path Only
+  - JSON Metadata
 
-  * SVG
-  * Optimized SVG
-  * JSX
-  * TSX
-  * React Component
-  * Path Only
-  * JSON Metadata
-* ❤️ Favorites
-* 🕒 Recently Used
-* 📂 Browse by icon pack
-* 🏷 Browse by category
-* 🌙 Light / Dark / System theme
-* ⚙️ Configurable grid density
-* ⌨️ Keyboard shortcuts
-* 🚀 Built for large icon collections (60,000+ icons)
+- ❤️ Favorites
+- 🕒 Recently Used
+- 📂 Browse by icon pack
+- 🏷 Browse by category
+- 🌙 Light / Dark / System theme
+- ⚙️ Configurable grid density
+- ⌨️ Keyboard shortcuts
+- 🚀 Built for large icon collections (60,000+ icons)
 
 ---
 
@@ -191,32 +192,32 @@ Browse, search, preview, customize, and copy **60,000+ SVG icons** from multiple
 
 The explorer works with any folder containing SVG files and currently supports libraries such as:
 
-* Ant Design Icons
-* Bootstrap Icons
-* Boxicons
-* Circum Icons
-* CSS.GG
-* Devicons
-* Flat Color Icons
-* Font Awesome
-* Font Awesome 6
-* Game Icons
-* Grommet Icons
-* Heroicons
-* Heroicons v2
-* IcoMoon
-* Line Awesome
-* Material Design Icons
-* Phosphor Icons
-* Radix Icons
-* Remix Icon
-* Simple Icons
-* Simple Line Icons
-* Tabler Icons
-* Themify Icons
-* Typicons
-* VS Code Icons
-* Weather Icons
+- Ant Design Icons
+- Bootstrap Icons
+- Boxicons
+- Circum Icons
+- CSS.GG
+- Devicons
+- Flat Color Icons
+- Font Awesome
+- Font Awesome 6
+- Game Icons
+- Grommet Icons
+- Heroicons
+- Heroicons v2
+- IcoMoon
+- Line Awesome
+- Material Design Icons
+- Phosphor Icons
+- Radix Icons
+- Remix Icon
+- Simple Icons
+- Simple Line Icons
+- Tabler Icons
+- Themify Icons
+- Typicons
+- VS Code Icons
+- Weather Icons
 
 More icon packs can be added by simply placing SVG files inside the `icons/` directory.
 
@@ -230,15 +231,15 @@ Coming soon.
 
 # Tech Stack
 
-* React 19
-* TypeScript
-* Vite
-* Tailwind CSS v4
-* shadcn/ui
-* Zustand
-* TanStack Virtual
-* Fuse.js
-* Lucide React
+- React 19
+- TypeScript
+- Vite
+- Tailwind CSS v4
+- shadcn/ui
+- Zustand
+- TanStack Virtual
+- Fuse.js
+- Lucide React
 
 ---
 
@@ -346,11 +347,11 @@ npm run dev
 
 Search supports:
 
-* Icon name
-* Filename
-* Icon pack
-* Category
-* Keywords
+- Icon name
+- Filename
+- Icon pack
+- Category
+- Keywords
 
 Powered by Fuse.js for fast fuzzy matching.
 
@@ -362,31 +363,31 @@ The application is designed to handle **60,000+ icons** efficiently.
 
 Performance optimizations include:
 
-* Virtualized rendering
-* Lazy SVG loading
-* Indexed search
-* Memoized filtering
-* Persistent application settings
-* Efficient Zustand state management
+- Virtualized rendering
+- Lazy SVG loading
+- Indexed search
+- Memoized filtering
+- Persistent application settings
+- Efficient Zustand state management
 
 ---
 
 # Roadmap
 
-* [ ] SVG optimization with SVGO
-* [ ] Export selected icons
-* [ ] Sprite sheet generation
-* [ ] React Native component generation
-* [ ] Vue component generation
-* [ ] Svelte component generation
-* [ ] Icon comparison mode
-* [ ] Plugin system
-* [ ] Cloud icon collections
-* [ ] Multi-language search
-* [ ] Command Palette
-* [ ] Custom icon collections
-* [ ] Icon tagging
-* [ ] Folder watching for automatic rescans
+- [ ] SVG optimization with SVGO
+- [ ] Export selected icons
+- [ ] Sprite sheet generation
+- [ ] React Native component generation
+- [ ] Vue component generation
+- [ ] Svelte component generation
+- [ ] Icon comparison mode
+- [ ] Plugin system
+- [ ] Cloud icon collections
+- [ ] Multi-language search
+- [ ] Command Palette
+- [ ] Custom icon collections
+- [ ] Icon tagging
+- [ ] Folder watching for automatic rescans
 
 ---
 
@@ -405,4 +406,5 @@ MIT License.
 ---
 
 Built with ❤️ for developers who work with SVG icons every day.
->>>>>>> 77b3a05856699add5ff75b07833f715975af2c5a
+
+> > > > > > > 77b3a05856699add5ff75b07833f715975af2c5a

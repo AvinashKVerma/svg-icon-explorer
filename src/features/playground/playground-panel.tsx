@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { FlipHorizontal2, FlipVertical2, RotateCcw } from "lucide-react";
 import type { IconRecord, Background } from "@/types/icon";
 import { loadSvgSource } from "@/lib/svg-loader";
-import { applyPlaygroundStyle } from "@/lib/svg-transform";
+import { applyPlaygroundStyle } from "@/lib/jsx-utils";
 import { useIconStore } from "@/store/icon-store";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
@@ -34,7 +34,9 @@ export function PlaygroundPanel({ icon }: { icon: IconRecord }) {
   const resetPlayground = useIconStore((s) => s.resetPlayground);
 
   useEffect(() => {
-    loadSvgSource(icon.path).then(setSource).catch(() => setSource(null));
+    loadSvgSource(icon.path)
+      .then(setSource)
+      .catch(() => setSource(null));
   }, [icon.path]);
 
   const styledMarkup = source ? applyPlaygroundStyle(source, playground) : null;
@@ -45,7 +47,7 @@ export function PlaygroundPanel({ icon }: { icon: IconRecord }) {
       <div
         className={cn(
           "m-3 flex h-44 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border",
-          bg.className
+          bg.className,
         )}
       >
         {styledMarkup && (
@@ -58,22 +60,14 @@ export function PlaygroundPanel({ icon }: { icon: IconRecord }) {
 
       <div className="flex items-center justify-between px-4">
         <p className="text-xs font-semibold tracking-wide text-ink-faint uppercase">Controls</p>
-        <button
-          onClick={resetPlayground}
-          className="flex items-center gap-1 text-[11px] text-ink-faint hover:text-ink"
-        >
+        <button onClick={resetPlayground} className="flex items-center gap-1 text-[11px] text-ink-faint hover:text-ink">
           <RotateCcw size={11} /> Reset
         </button>
       </div>
 
       <div className="flex flex-col gap-4 px-4 py-3">
         <Row label="Size" value={`${playground.size}px`}>
-          <Slider
-            value={playground.size}
-            onChange={(v) => setPlayground({ size: v })}
-            min={16}
-            max={256}
-          />
+          <Slider value={playground.size} onChange={(v) => setPlayground({ size: v })} min={16} max={256} />
         </Row>
 
         <Row label="Stroke width" value={`${playground.strokeWidth}`}>
@@ -87,12 +81,7 @@ export function PlaygroundPanel({ icon }: { icon: IconRecord }) {
         </Row>
 
         <Row label="Rotation" value={`${playground.rotation}°`}>
-          <Slider
-            value={playground.rotation}
-            onChange={(v) => setPlayground({ rotation: v })}
-            min={0}
-            max={360}
-          />
+          <Slider value={playground.rotation} onChange={(v) => setPlayground({ rotation: v })} min={0} max={360} />
         </Row>
 
         <Row label="Opacity" value={`${Math.round(playground.opacity * 100)}%`}>
@@ -166,7 +155,7 @@ export function PlaygroundPanel({ icon }: { icon: IconRecord }) {
                   "rounded-md border px-1 py-1.5 text-[10px]",
                   playground.background === b.value
                     ? "border-accent text-accent"
-                    : "border-border text-ink-faint hover:text-ink"
+                    : "border-border text-ink-faint hover:text-ink",
                 )}
               >
                 {b.label}

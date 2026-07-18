@@ -1,0 +1,31 @@
+{
+  "name": "css.gg",
+  "version": "2.1.4",
+  "description": "700+ Pure CSS, SVG & Figma UI Icons, 6000+ glyphs, patterns, colors and layouts.",
+  "main": "index.js",
+  "module": "index.js",
+  "browser": "index.js",
+  "typings": "index.js",
+  "files": [
+    "icons",
+    "glyphs"
+  ],
+  "scripts": {
+    "test": " "
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/astrit/css.gg.git"
+  },
+  "keywords": [
+    "css",
+    "icons"
+  ],
+  "author": "Astrit",
+  "license": "SEE LICENSE",
+  "licenseUrl": "https://css.gg/licence.txt",
+  "bugs": {
+    "url": "https://github.com/astrit/css.gg/issues"
+  },
+  "homepage": "https://css.gg"
+}

@@ -13,14 +13,7 @@ export interface IconRecord {
   keywords: string[];
 }
 
-export type CopyFormat =
-  | "svg"
-  | "svg-optimized"
-  | "jsx"
-  | "tsx"
-  | "component"
-  | "path"
-  | "json";
+export type CopyFormat = "svg" | "svg-optimized" | "jsx" | "tsx" | "component" | "path" | "json" | "configure";
 
 export type GridDensity = "small" | "medium" | "large";
 
@@ -39,4 +32,39 @@ export interface PlaygroundState {
   flipH: boolean;
   flipV: boolean;
   background: Background;
+}
+
+export interface ComponentGeneratorConfig {
+  language: "ts" | "js";
+
+  includeImports: boolean;
+  includeSvgPropsImport: boolean;
+
+  exportType: "default" | "named";
+
+  useForwardRef: boolean;
+  useMemo: boolean;
+
+  includeSize: boolean;
+  includeColor: boolean;
+  includeStrokeWidth: boolean;
+
+  includeClassName: boolean;
+  includeStyle: boolean;
+  includeTitle: boolean;
+
+  spreadProps: boolean;
+
+  preserveViewBox: boolean;
+  preserveXmlns: boolean;
+  removeDimensions: boolean;
+
+  prettier: boolean;
+
+  defaults: {
+    size: number;
+    color: string;
+    strokeWidth: number;
+    componentName: string;
+  };
 }

@@ -40,6 +40,7 @@ export default function App() {
 
   const selectedIcon = filteredIcons.find((i) => i.id === selectedIconId) ?? null;
 
+  console.log(selectedIcon);
   if (loading) {
     return (
       <div className="flex h-screen w-screen flex-col items-center justify-center gap-3 bg-canvas text-ink-dim">

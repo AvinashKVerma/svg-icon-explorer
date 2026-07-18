@@ -7,8 +7,10 @@ import type {
   Theme,
   CopyFormat,
   PlaygroundState,
+  ComponentGeneratorConfig,
 } from "@/types/icon";
 import { loadManifest, buildSearchIndex } from "@/lib/manifest";
+import { DEFAULT_COMPONENT_GENERATOR, DEFAULT_PLAYGROUND } from "@/lib/component-generator-defaults";
 
 interface RecentCopy {
   iconId: string;
@@ -16,17 +18,20 @@ interface RecentCopy {
   at: number;
 }
 
-const DEFAULT_PLAYGROUND: PlaygroundState = {
-  size: 96,
-  strokeWidth: 1.8,
-  fillColor: "#6366f1",
-  strokeColor: "#6366f1",
-  rotation: 0,
-  opacity: 1,
-  scale: 1,
-  flipH: false,
-  flipV: false,
-  background: "checkerboard",
+const mergeComponentGenerator = (
+  current: ComponentGeneratorConfig,
+  patch: DeepPartial<ComponentGeneratorConfig>,
+): ComponentGeneratorConfig => ({
+  ...current,
+  ...patch,
+  defaults: {
+    ...current.defaults,
+    ...patch.defaults,
+  },
+});
+
+type DeepPartial<T> = {
+  [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K];
 };
 
 interface IconStoreState {
@@ -55,6 +60,7 @@ interface IconStoreState {
   theme: Theme;
   animationsEnabled: boolean;
   playground: PlaygroundState;
+  componentGenerator: ComponentGeneratorConfig;
 
   // actions
   init: () => Promise<void>;
@@ -75,6 +81,10 @@ interface IconStoreState {
   setAnimationsEnabled: (v: boolean) => void;
   setPlayground: (patch: Partial<PlaygroundState>) => void;
   resetPlayground: () => void;
+
+  setComponentGenerator: (patch: DeepPartial<ComponentGeneratorConfig>) => void;
+
+  resetComponentGenerator: () => void;
 
   // derived (computed via getters below, exposed as functions)
   getFilteredIcons: () => IconRecord[];
@@ -104,6 +114,7 @@ export const useIconStore = create<IconStoreState>()(
       theme: "system",
       animationsEnabled: true,
       playground: DEFAULT_PLAYGROUND,
+      componentGenerator: DEFAULT_COMPONENT_GENERATOR,
 
       init: async () => {
         if (get().allIcons.length > 0) return;
@@ -185,6 +196,16 @@ export const useIconStore = create<IconStoreState>()(
       setPlayground: (patch) => set((s) => ({ playground: { ...s.playground, ...patch } })),
       resetPlayground: () => set({ playground: DEFAULT_PLAYGROUND }),
 
+      setComponentGenerator: (patch) =>
+        set((s) => ({
+          componentGenerator: mergeComponentGenerator(s.componentGenerator, patch),
+        })),
+
+      resetComponentGenerator: () =>
+        set({
+          componentGenerator: mergeComponentGenerator(DEFAULT_COMPONENT_GENERATOR, {}),
+        }),
+
       getFilteredIcons: () => {
         const s = get();
         let base: IconRecord[];
@@ -219,7 +240,8 @@ export const useIconStore = create<IconStoreState>()(
         theme: s.theme,
         animationsEnabled: s.animationsEnabled,
         playground: s.playground,
+        componentGenerator: s.componentGenerator,
       }),
-    }
-  )
+    },
+  ),
 );

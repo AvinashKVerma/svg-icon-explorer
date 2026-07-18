@@ -46,17 +46,14 @@ export function TopBar({ resultCount }: { resultCount: number }) {
   return (
     <header className="flex h-13 shrink-0 items-center gap-3 border-b border-border bg-surface px-3">
       <div className="flex items-center gap-2 pr-2">
-        <div className="flex h-6 w-6 items-center justify-center rounded-md bg-accent text-[#0b0c10]">
+        <div className="flex h-6 w-6 items-center justify-center rounded-md bg-accent text-canvas">
           <Search size={13} strokeWidth={2.5} />
         </div>
         <span className="hidden text-sm font-semibold text-ink sm:inline">SVG Icon Explorer</span>
       </div>
 
       <div className="relative flex-1 max-w-xl">
-        <Search
-          size={14}
-          className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-ink-faint"
-        />
+        <Search size={14} className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-ink-faint" />
         <input
           ref={inputRef}
           value={query}
@@ -78,9 +75,7 @@ export function TopBar({ resultCount }: { resultCount: number }) {
         )}
       </div>
 
-      <span className="hidden text-xs text-ink-faint md:inline">
-        {resultCount.toLocaleString()} results
-      </span>
+      <span className="hidden text-xs text-ink-faint md:inline">{resultCount.toLocaleString()} results</span>
 
       <div className="flex items-center gap-0.5 rounded-md border border-border bg-surface-2 p-0.5">
         {(["small", "medium", "large"] as GridDensity[]).map((d) => (
@@ -89,7 +84,7 @@ export function TopBar({ resultCount }: { resultCount: number }) {
               onClick={() => setGridDensity(d)}
               className={cn(
                 "flex h-6 w-6 items-center justify-center rounded text-ink-faint transition-colors",
-                gridDensity === d && "bg-surface-3 text-ink"
+                gridDensity === d && "bg-surface-3 text-ink",
               )}
             >
               {DENSITY_ICONS[d]}

@@ -16,6 +16,7 @@
  */
 import { readdirSync, statSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join, relative, extname, basename } from "node:path";
+import { getComponentName } from "./component-name";
 
 interface IconRecord {
   id: string;
@@ -23,6 +24,7 @@ interface IconRecord {
   packLabel: string;
   category: string | null;
   name: string;
+  componentName: string;
   filename: string;
   path: string;
   viewBox: string;
@@ -37,9 +39,7 @@ const OUT_DIR = join(process.cwd(), "generated");
 const OUT_FILE = join(OUT_DIR, "manifest.json");
 
 function toLabel(slug: string): string {
-  return slug
-    .replace(/[-_]/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  return slug.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 function toName(slug: string): string {
@@ -88,17 +88,27 @@ function scan(): IconRecord[] {
     return records;
   }
 
+  console.log("+++++++++++", topLevel);
   for (const pack of topLevel) {
     const packDir = join(ICONS_ROOT, pack);
     const packLabel = toLabel(pack);
+
+    console.log("<><><><><>", packDir, packLabel);
 
     walk(packDir, 0, (filePath) => {
       const relPath = relative(ICONS_ROOT, filePath).split("\\").join("/");
       const segments = relPath.split("/"); // pack/[category/]file.svg
       const filename = basename(filePath);
-      const slug = filename.replace(/\.svg$/i, "");
-      // category = everything between pack and the file, joined ("solid", "16/outline", etc.)
-      const category = segments.length > 2 ? segments.slice(1, -1).join("/") : null;
+
+      const { slug, category, variant } = extractIconMetadata(pack, segments, filename);
+
+      if (pack === "material-design-icons") {
+        const size = filename.replace(/\.svg$/i, "");
+
+        if (size !== "24px") {
+          return;
+        }
+      }
 
       let source = "";
       let sizeBytes = 0;
@@ -115,9 +125,14 @@ function scan(): IconRecord[] {
       const heightAttr = extractAttr(source, "height");
       const width = widthAttr && /^\d+(\.\d+)?$/.test(widthAttr) ? parseFloat(widthAttr) : null;
       const height = heightAttr && /^\d+(\.\d+)?$/.test(heightAttr) ? parseFloat(heightAttr) : null;
+      ``;
 
+      const componentName = getComponentName(pack, category, slug, relPath);
       const name = toName(slug);
-      const id = `${pack}-${category ? category.replace(/\//g, "-") + "-" : ""}${slug}`
+
+      const id = [pack, category, variant, slug]
+        .filter(Boolean)
+        .join("-")
         .toLowerCase()
         .replace(/[^a-z0-9-]+/g, "-");
 
@@ -126,8 +141,9 @@ function scan(): IconRecord[] {
         pack,
         packLabel,
         category,
-        name,
-        filename,
+        name: componentName,
+        componentName,
+        filename: componentName,
         path: `icons/${relPath}`,
         viewBox,
         width,
@@ -160,3 +176,21 @@ function main() {
 }
 
 main();
+
+function extractIconMetadata(pack: string, segments: string[], filename: string) {
+  let slug = filename.replace(/\.svg$/i, "");
+  let category: string | null = segments.length > 2 ? segments.slice(1, -1).join("/") : null;
+
+  let variant: string | null = null;
+
+  switch (pack) {
+    case "material-design-icons":
+      // pack/src/category/icon/style/size.svg
+      category = segments[2];
+      slug = segments[3];
+      variant = segments[4];
+      break;
+  }
+
+  return { slug, category, variant };
+}
