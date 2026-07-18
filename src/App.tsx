@@ -18,9 +18,11 @@ export default function App() {
   const allIcons = useIconStore((s) => s.allIcons);
   const selectedIconId = useIconStore((s) => s.selectedIconId);
   const query = useIconStore((s) => s.query);
+  const searchResults = useIconStore((s) => s.searchResults);
   const selectedPacks = useIconStore((s) => s.selectedPacks);
   const selectedCategories = useIconStore((s) => s.selectedCategories);
   const showFavoritesOnly = useIconStore((s) => s.showFavoritesOnly);
+  const favorites = useIconStore((s) => s.favorites);
   const getFilteredIcons = useIconStore((s) => s.getFilteredIcons);
 
   useThemeEffect();
@@ -33,7 +35,7 @@ export default function App() {
   const filteredIcons = useMemo(
     () => getFilteredIcons(),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [allIcons, query, selectedPacks, selectedCategories, showFavoritesOnly, getFilteredIcons],
+    [allIcons, query, searchResults, selectedPacks, selectedCategories, showFavoritesOnly, favorites, getFilteredIcons],
   );
 
   useKeyboardShortcuts(filteredIcons);

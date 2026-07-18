@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type Fuse from "fuse.js";
 import type {
   IconRecord,
   GridDensity,
@@ -9,8 +8,11 @@ import type {
   PlaygroundState,
   ComponentGeneratorConfig,
 } from "@/types/icon";
-import { loadManifest, buildSearchIndex } from "@/lib/manifest";
+import { loadManifest } from "@/lib/manifest";
 import { DEFAULT_COMPONENT_GENERATOR, DEFAULT_PLAYGROUND } from "@/lib/component-generator-defaults";
+
+let searchWorker: Worker | null = null;
+let latestSearchRequestId = 0;
 
 interface RecentCopy {
   iconId: string;
@@ -39,7 +41,8 @@ interface IconStoreState {
   allIcons: IconRecord[];
   loading: boolean;
   error: string | null;
-  fuse: Fuse<IconRecord> | null;
+  searchResults: IconRecord[] | null;
+  searchReady: boolean;
 
   // filters
   query: string;
@@ -96,7 +99,8 @@ export const useIconStore = create<IconStoreState>()(
       allIcons: [],
       loading: true,
       error: null,
-      fuse: null,
+      searchResults: null,
+      searchReady: false,
 
       query: "",
       selectedPacks: new Set(),
@@ -121,8 +125,30 @@ export const useIconStore = create<IconStoreState>()(
         set({ loading: true, error: null });
         try {
           const records = await loadManifest();
-          const fuse = buildSearchIndex(records);
-          set({ allIcons: records, fuse, loading: false });
+          searchWorker = new Worker(new URL("../lib/icon-search.worker.ts", import.meta.url), { type: "module" });
+
+          searchWorker.onmessage = (event: MessageEvent) => {
+            const message = event.data as
+              | { type: "ready" }
+              | { type: "results"; requestId: number; indices: number[] };
+
+            if (message.type === "ready") {
+              set({ searchReady: true });
+              const query = get().query.trim();
+              if (query.length >= 2) {
+                const requestId = ++latestSearchRequestId;
+                searchWorker?.postMessage({ type: "search", query, requestId });
+              }
+              return;
+            }
+
+            if (message.requestId === latestSearchRequestId) {
+              set({ searchResults: message.indices.map((index) => records[index]) });
+            }
+          };
+
+          set({ allIcons: records, loading: false });
+          searchWorker.postMessage({ type: "init", records });
         } catch (err) {
           set({
             error: err instanceof Error ? err.message : "Failed to load icons",
@@ -131,7 +157,15 @@ export const useIconStore = create<IconStoreState>()(
         }
       },
 
-      setQuery: (q) => set({ query: q }),
+      setQuery: (q) => {
+        const query = q.trim();
+        set({ query: q, searchResults: query.length >= 2 ? [] : null });
+
+        if (query.length >= 2 && get().searchReady) {
+          const requestId = ++latestSearchRequestId;
+          searchWorker?.postMessage({ type: "search", query, requestId });
+        }
+      },
 
       togglePack: (pack) =>
         set((s) => {
@@ -210,8 +244,8 @@ export const useIconStore = create<IconStoreState>()(
         const s = get();
         let base: IconRecord[];
 
-        if (s.query.trim().length >= 2 && s.fuse) {
-          base = s.fuse.search(s.query.trim()).map((r) => r.item);
+        if (s.query.trim().length >= 2) {
+          base = s.searchResults ?? [];
         } else {
           base = s.allIcons;
         }

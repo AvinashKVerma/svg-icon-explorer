@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Search, X, Sun, Moon, Monitor, LayoutGrid, Grid2x2, Grid3x3 } from "lucide-react";
 import { useIconStore } from "@/store/icon-store";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -26,6 +26,18 @@ export function TopBar({ resultCount }: { resultCount: number }) {
   const theme = useIconStore((s) => s.theme);
   const setTheme = useIconStore((s) => s.setTheme);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [inputValue, setInputValue] = useState(query);
+
+  // Updating the input is cheap; defer a search request until the user pauses typing.
+  useEffect(() => {
+    setInputValue(query);
+  }, [query]);
+
+  useEffect(() => {
+    if (inputValue === query) return;
+    const timer = window.setTimeout(() => setQuery(inputValue), 180);
+    return () => window.clearTimeout(timer);
+  }, [inputValue, query, setQuery]);
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -35,6 +47,7 @@ export function TopBar({ resultCount }: { resultCount: number }) {
         inputRef.current?.select();
       }
       if (e.key === "Escape" && document.activeElement === inputRef.current) {
+        setInputValue("");
         setQuery("");
         inputRef.current?.blur();
       }
@@ -56,14 +69,17 @@ export function TopBar({ resultCount }: { resultCount: number }) {
         <Search size={14} className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-ink-faint" />
         <input
           ref={inputRef}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
           placeholder="Search icons by name, pack, category…"
           className="h-8 w-full rounded-md border border-border bg-surface-2 pl-8 pr-16 text-sm text-ink placeholder:text-ink-faint outline-none focus:border-accent"
         />
-        {query ? (
+        {inputValue ? (
           <button
-            onClick={() => setQuery("")}
+            onClick={() => {
+              setInputValue("");
+              setQuery("");
+            }}
             className="absolute top-1/2 right-2 -translate-y-1/2 rounded p-0.5 text-ink-faint hover:text-ink"
           >
             <X size={13} />
