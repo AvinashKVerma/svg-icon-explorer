@@ -12,7 +12,7 @@ dist-ssr
 .DS_Store
 
 # Generated manifest (regenerate with `npm run scan`)
-/generated/*.json
+# /generated/*.json
 
 
 # Dependencies
@@ -26,8 +26,8 @@ dist-ssr/
 coverage/
 
 # Generated files
-generated/
-*.local
+# generated/
+# *.local
 
 # Logs
 logs/
