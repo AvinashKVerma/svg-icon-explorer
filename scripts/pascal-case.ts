@@ -7,7 +7,7 @@ export function pascalCase(input: string): string {
   return input
     .replace(/\.[^.]+$/, "")
     .replace(/&/g, " And ")
-    .replace(/['’]/g, "")
+    .replace(/['\u2019]/g, "")
     .replace(/[^a-zA-Z0-9]+/g, " ")
     .trim()
     .split(/\s+/)

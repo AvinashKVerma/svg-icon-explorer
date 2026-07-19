@@ -11,8 +11,7 @@ function pascalCase(name: string): string {
     .split(/[\s-_]+/)
     .filter(Boolean)
     .map((w) => w[0].toUpperCase() + w.slice(1))
-    .join("")
-    .concat("Icon");
+    .join("");
 }
 
 const FORMAT_LABEL: Record<CopyFormat, string> = {

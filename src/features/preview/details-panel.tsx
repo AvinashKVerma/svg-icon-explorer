@@ -32,7 +32,6 @@ export function DetailsPanel({ icon }: { icon: IconRecord }) {
 
   const optimizedSize = source ? new Blob([lightOptimize(source)]).size : null;
 
-  console.log(icon);
   return (
     <div className="flex h-full flex-col overflow-y-auto">
       <div className="checkerboard-bg m-3 flex h-40 shrink-0 items-center justify-center rounded-lg border border-border">

@@ -210,6 +210,8 @@ function collectRootAttributes(el: Element, config: ComponentGeneratorConfig): s
   let hadWidth = false;
   let hadHeight = false;
   let hadStyle = false;
+  let hadFill = false;
+  let hadStrokeWidth = false;
 
   Array.from(el.attributes).forEach((attr) => {
     const { name, value } = attr;
@@ -233,15 +235,15 @@ function collectRootAttributes(el: Element, config: ComponentGeneratorConfig): s
     }
 
     if (name === "width") {
-      hadWidth = true;
       if (config.removeDimensions) return;
+      hadWidth = true;
       attrs.push(config.includeSize ? "width={size}" : formatStringAttr("width", value));
       return;
     }
 
     if (name === "height") {
-      hadHeight = true;
       if (config.removeDimensions) return;
+      hadHeight = true;
       attrs.push(config.includeSize ? "height={size}" : formatStringAttr("height", value));
       return;
     }
@@ -256,12 +258,15 @@ function collectRootAttributes(el: Element, config: ComponentGeneratorConfig): s
       return;
     }
 
+    if (name === "fill") hadFill = true;
+
     if ((name === "fill" || name === "stroke") && config.includeColor && isReplaceableColorValue(value)) {
       attrs.push(`${name}={color}`);
       return;
     }
 
     if (name === "stroke-width" && config.includeStrokeWidth) {
+      hadStrokeWidth = true;
       attrs.push("strokeWidth={strokeWidth}");
       return;
     }
@@ -269,10 +274,18 @@ function collectRootAttributes(el: Element, config: ComponentGeneratorConfig): s
     attrs.push(formatStringAttr(jsxAttributeName(name), value));
   });
 
-  if (!config.removeDimensions && config.includeSize) {
+  // `removeDimensions` removes source-provided dimensions; it must not remove
+  // the generated size prop. Otherwise icons without width/height attributes
+  // receive a `size` prop that is never applied to the SVG.
+  if (config.includeSize) {
     if (!hadWidth) attrs.push("width={size}");
     if (!hadHeight) attrs.push("height={size}");
   }
+
+  // Apply configurable paint defaults at the root so they also work for SVGs
+  // whose child elements omit fill/stroke-width attributes.
+  if (config.includeColor && !hadFill) attrs.push("fill={color}");
+  if (config.includeStrokeWidth && !hadStrokeWidth) attrs.push("strokeWidth={strokeWidth}");
 
   if (config.includeClassName) attrs.push("className={className}");
   if (config.includeStyle && !hadStyle) attrs.push("style={style}");

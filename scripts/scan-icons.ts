@@ -88,12 +88,9 @@ function scan(): IconRecord[] {
     return records;
   }
 
-  console.log("+++++++++++", topLevel);
   for (const pack of topLevel) {
     const packDir = join(ICONS_ROOT, pack);
     const packLabel = toLabel(pack);
-
-    console.log("<><><><><>", packDir, packLabel);
 
     walk(packDir, 0, (filePath) => {
       const relPath = relative(ICONS_ROOT, filePath).split("\\").join("/");

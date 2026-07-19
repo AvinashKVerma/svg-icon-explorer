@@ -16,8 +16,6 @@ export function getComponentName(pack: string, category: string | null, slug: st
 
   const formatter = ICON_FORMATTERS[formatterKey];
 
-  if (formatterKey === "md") console.log("??????????", pack, formatter(slug, category, filePath), formatterKey);
-
   if (!formatter) {
     return pascalCase(slug);
   }
