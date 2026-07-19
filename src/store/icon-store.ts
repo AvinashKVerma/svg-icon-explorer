@@ -43,6 +43,7 @@ interface IconStoreState {
   error: string | null;
   searchResults: IconRecord[] | null;
   searchReady: boolean;
+  searchPending: boolean;
 
   // filters
   query: string;
@@ -101,6 +102,7 @@ export const useIconStore = create<IconStoreState>()(
       error: null,
       searchResults: null,
       searchReady: false,
+      searchPending: false,
 
       query: "",
       selectedPacks: new Set(),
@@ -143,7 +145,7 @@ export const useIconStore = create<IconStoreState>()(
             }
 
             if (message.requestId === latestSearchRequestId) {
-              set({ searchResults: message.indices.map((index) => records[index]) });
+              set({ searchResults: message.indices.map((index) => records[index]), searchPending: false });
             }
           };
 
@@ -159,7 +161,7 @@ export const useIconStore = create<IconStoreState>()(
 
       setQuery: (q) => {
         const query = q.trim();
-        set({ query: q, searchResults: query.length >= 2 ? [] : null });
+        set({ query: q, searchResults: query.length >= 2 ? [] : null, searchPending: query.length >= 2 });
 
         if (query.length >= 2 && get().searchReady) {
           const requestId = ++latestSearchRequestId;
@@ -189,6 +191,8 @@ export const useIconStore = create<IconStoreState>()(
           selectedCategories: new Set(),
           showFavoritesOnly: false,
           query: "",
+          searchResults: null,
+          searchPending: false,
         }),
 
       setShowFavoritesOnly: (v) => set({ showFavoritesOnly: v }),

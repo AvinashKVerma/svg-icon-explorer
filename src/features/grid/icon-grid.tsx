@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { SearchX } from "lucide-react";
+import { Loader2, SearchX } from "lucide-react";
 
 import type { GridDensity, IconRecord } from "@/types/icon";
 import { useIconStore } from "@/store/icon-store";
@@ -44,6 +44,7 @@ export function IconGrid({ icons }: { icons: IconRecord[] }) {
   const toggleMultiSelect = useIconStore((s) => s.toggleMultiSelect);
   const toggleFavorite = useIconStore((s) => s.toggleFavorite);
   const pushRecentlyUsed = useIconStore((s) => s.pushRecentlyUsed);
+  const searchPending = useIconStore((s) => s.searchPending);
 
   const { cell, columnGap, rowGap } = DENSITY_CONFIG[density];
 
@@ -96,6 +97,14 @@ export function IconGrid({ icons }: { icons: IconRecord[] }) {
           height: rowVirtualizer.getTotalSize(),
         }}
       >
+        {searchPending && (
+          <Loader2
+            size={13}
+            className="pointer-events-none absolute top-1/2 right-7 -translate-y-1/2 animate-spin text-accent"
+            aria-label="Searching icons"
+          />
+        )}
+
         {rowVirtualizer.getVirtualItems().map((virtualRow) => {
           const start = virtualRow.index * columns;
           const end = Math.min(start + columns, icons.length);

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Search, X, Sun, Moon, Monitor, LayoutGrid, Grid2x2, Grid3x3 } from "lucide-react";
+import { Search, X, Sun, Moon, Monitor, LayoutGrid, Grid2x2, Grid3x3, Loader2 } from "lucide-react";
 import { useIconStore } from "@/store/icon-store";
 import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/cn";
@@ -21,12 +21,14 @@ const THEME_ICON: Record<Theme, React.ReactNode> = {
 export function TopBar({ resultCount }: { resultCount: number }) {
   const query = useIconStore((s) => s.query);
   const setQuery = useIconStore((s) => s.setQuery);
+  const searchPending = useIconStore((s) => s.searchPending);
   const gridDensity = useIconStore((s) => s.gridDensity);
   const setGridDensity = useIconStore((s) => s.setGridDensity);
   const theme = useIconStore((s) => s.theme);
   const setTheme = useIconStore((s) => s.setTheme);
   const inputRef = useRef<HTMLInputElement>(null);
   const [inputValue, setInputValue] = useState(query);
+  const isSearching = searchPending || (inputValue.trim().length >= 2 && inputValue !== query);
 
   // Updating the input is cheap; defer a search request until the user pauses typing.
   useEffect(() => {
@@ -35,7 +37,7 @@ export function TopBar({ resultCount }: { resultCount: number }) {
 
   useEffect(() => {
     if (inputValue === query) return;
-    const timer = window.setTimeout(() => setQuery(inputValue), 180);
+    const timer = window.setTimeout(() => setQuery(inputValue), 10);
     return () => window.clearTimeout(timer);
   }, [inputValue, query, setQuery]);
 
@@ -75,15 +77,25 @@ export function TopBar({ resultCount }: { resultCount: number }) {
           className="h-8 w-full rounded-md border border-border bg-surface-2 pl-8 pr-16 text-sm text-ink placeholder:text-ink-faint outline-none focus:border-accent"
         />
         {inputValue ? (
-          <button
-            onClick={() => {
-              setInputValue("");
-              setQuery("");
-            }}
-            className="absolute top-1/2 right-2 -translate-y-1/2 rounded p-0.5 text-ink-faint hover:text-ink"
-          >
-            <X size={13} />
-          </button>
+          <>
+            {isSearching && (
+              <Loader2
+                size={13}
+                className="pointer-events-none absolute top-1/2 right-7 -translate-y-1/2 animate-spin text-accent"
+                aria-label="Searching icons"
+              />
+            )}
+            <button
+              onClick={() => {
+                setInputValue("");
+                setQuery("");
+              }}
+              className="absolute top-1/2 right-2 -translate-y-1/2 rounded p-0.5 text-ink-faint hover:text-ink"
+              aria-label="Clear search"
+            >
+              <X size={13} />
+            </button>
+          </>
         ) : (
           <kbd className="absolute top-1/2 right-2 -translate-y-1/2 rounded border border-border bg-surface-3 px-1.5 py-0.5 text-[10px] text-ink-faint">
             ⌘K
