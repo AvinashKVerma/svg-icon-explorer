@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Star, Download } from "lucide-react";
 import type { IconRecord } from "@/types/icon";
 import { loadSvgSource } from "@/lib/svg-loader";
-import { lightOptimize } from "@/lib/jsx-utils";
+import { lightOptimize, copyText } from "@/lib/jsx-utils";
 import { useIconStore } from "@/store/icon-store";
 import { useCopyIcon } from "@/hooks/use-copy-icon";
+import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { CopyFormatList } from "./copy-format-list";
 import { ComponentGeneratorDialog } from "./component-generator-dialog";
@@ -22,6 +23,15 @@ export function DetailsPanel({ icon }: { icon: IconRecord }) {
   const toggleFavorite = useIconStore((s) => s.toggleFavorite);
   const { downloadIcon } = useCopyIcon();
   const isFavorite = favorites.includes(icon.id);
+
+  const handleCopyName = useCallback(async () => {
+    try {
+      await copyText(icon.name);
+      toast(`Copied "${icon.name}"`);
+    } catch {
+      toast("Couldn't copy — try again", "error");
+    }
+  }, [icon.name]);
 
   useEffect(() => {
     setSource(null);
@@ -45,7 +55,13 @@ export function DetailsPanel({ icon }: { icon: IconRecord }) {
 
       <div className="flex items-start justify-between gap-2 px-4">
         <div className="min-w-0">
-          <h2 className="truncate text-base font-semibold text-ink">{icon.name}</h2>
+          <h2
+            className="truncate text-base font-semibold text-ink cursor-pointer hover:text-accent transition-colors"
+            onClick={handleCopyName}
+            title="Click to copy icon name"
+          >
+            {icon.name}
+          </h2>
           <p className="text-xs text-ink-faint">
             {icon.packLabel}
             {icon.category ? ` · ${icon.category}` : ""}
